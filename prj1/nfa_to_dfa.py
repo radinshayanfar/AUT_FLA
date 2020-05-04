@@ -81,6 +81,7 @@ def powerset(iterable):
     :param iterable: input set
     :return: list of all iterable subsets
     """
+
     s = list(iterable)
     return list(map(set, chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))))
 
@@ -91,6 +92,7 @@ def states_to_list(states: list) -> list:
     :param states: list of State
     :return: list of str
     """
+
     states_list = []
     for state in states:
         states_list.append(str(state))
@@ -103,11 +105,14 @@ def convert_to_dfa(nfa: list) -> list:
     :param nfa: NFA
     :return: converted DFA
     """
+
+    # Generating dfa states (it is nfa states' power set)
     dfa = []
     states_list = states_to_list(nfa)
     for dfa_state in powerset(states_list):
         dfa.append(State(dfa_state))
 
+    # Calculating DFAs' transitions for all states using NFAs' δ* for every state and alphabet
     for dfa_state in dfa:
         states = [st for st in nfa if st.name in dfa_state.name]
         for letter in alphabet:
@@ -126,6 +131,7 @@ def iterable_to_line(iterable):
     :param iterable:
     :return: returns one line string
     """
+
     ret = ''
     for i in iterable:
         ret += str(i) + ' '
@@ -138,12 +144,14 @@ def write_to_file(dfa: list) -> None:
     Writes dfa to 'DFA_Output_2.txt' file
     :param dfa: DFA to be written to file
     """
+
     with open('DFA_Output_2.txt', 'w') as f:
         f.write(iterable_to_line(alphabet))
         f.write(iterable_to_line(dfa))
         f.write(int_st_name + '\n')
         f.write(iterable_to_line([st for st in dfa if set(states_to_list(st.name)) & set(fnl_st_name)]))
 
+        # Writing transitions
         for st in dfa:
             for adj in st.adjs:
                 print(type(adj[0]))
@@ -151,6 +159,7 @@ def write_to_file(dfa: list) -> None:
 
 
 if __name__ == '__main__':
+    # Reading NFA from input file and store it as a list of State objects (nfa variable)
     with open('NFA_Input_2.txt', 'r') as f:
         alphabet = f.readline().split()
         nfa = [State(st_name) for st_name in f.readline().split()]
@@ -159,7 +168,8 @@ if __name__ == '__main__':
         fnl_st_name = f.readline().split()
         final_states = [st for st in nfa if st.name in fnl_st_name]
 
-        lambda_count = 0
+        # Reading transitions
+        lambda_count = 0  # Counts lambda transitions for bfs termination
         while True:
             line = f.readline()
             if line == '':
@@ -171,6 +181,7 @@ if __name__ == '__main__':
                 lambda_count += 1
             src.add_adj(dst, transition[1])
 
+    # Some calculations and writing output to file
     for st in nfa:
         st.calc_delta()
     dfa = convert_to_dfa(nfa)
