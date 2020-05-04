@@ -148,7 +148,7 @@ def write_to_file(dfa: list) -> None:
     with open('DFA_Output_2.txt', 'w') as f:
         f.write(iterable_to_line(alphabet))
         f.write(iterable_to_line(dfa))
-        f.write(int_st_name + '\n')
+        f.write(f"{{'{int_st_name}'}}\n")
         f.write(iterable_to_line([st for st in dfa if set(states_to_list(st.name)) & set(fnl_st_name)]))
 
         # Writing transitions
