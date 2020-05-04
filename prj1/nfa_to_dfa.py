@@ -1,7 +1,8 @@
 from __future__ import annotations
+
 import queue
 from itertools import chain, combinations
-from typing import Union, Type
+from typing import Union
 
 
 class State:
@@ -16,12 +17,11 @@ class State:
         self.delta_s = {}
         for letter in alphabet:
             self.delta_s[letter] = set()
-        self.final = False
 
     def add_adj(self, v: State, e: str) -> None:
         """
         Adds a transition for state
-        :param v: the next state vertix
+        :param v: the next state vertex
         :param e: edge label
         """
 
