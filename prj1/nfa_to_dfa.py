@@ -154,7 +154,6 @@ def write_to_file(dfa: list) -> None:
         # Writing transitions
         for st in dfa:
             for adj in st.adjs:
-                print(type(adj[0]))
                 f.write(str(st) + ' ' + adj[1] + ' ' + str(adj[0]) + '\n')
 
 
