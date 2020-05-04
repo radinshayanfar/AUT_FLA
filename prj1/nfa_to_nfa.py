@@ -1,9 +1,15 @@
+from __future__ import annotations
 import queue
 from itertools import chain, combinations
+from typing import Union, Type
 
 
 class State:
-    def __init__(self, name):
+    """
+    Represents a vertex in automata's graph representation
+    """
+
+    def __init__(self, name: Union[str, set]) -> None:
         self.name = name
 
         self.adjs = []
@@ -12,12 +18,21 @@ class State:
             self.delta_s[letter] = set()
         self.final = False
 
-    def add_adj(self, v, e):
+    def add_adj(self, v: State, e: str) -> None:
+        """
+        Adds a transition for state
+        :param v: the next state vertix
+        :param e: edge label
+        """
+
         self.adjs.append((v, e))
 
-    def calc_delta(self):
+    def calc_delta(self) -> None:
+        """
+        Calculates δ*(self, a) for every a in alphabet
+        """
+
         self.__bfs()
-        print(self.delta_s)
 
     def __bfs(self):
         q = queue.Queue(maxsize=1000)
@@ -36,11 +51,9 @@ class State:
         return hash(self.name)
 
     def __eq__(self, other):
-        return self.name == other.name
+        return self.name == other
 
     def __ne__(self, other):
-        # Not strictly necessary, but to avoid having both x==y and x!=y
-        # True at the same time
         return not (self == other)
 
     def __str__(self) -> str:
@@ -49,32 +62,47 @@ class State:
     def __repr__(self) -> str:
         return self.__str__()
 
-    def state_debug(self) -> str:
-        ret = str(self.name) + '\nTransitions: '
-        for adj in self.adjs:
-            ret += adj[1] + ' ' + str(adj[0]) + ', '
-        # ret += '\nDelta*: '
-        # for letter in self.delta_s:
-        #     ret += f"Letter: {letter}: "
-        #     for n in self.delta_s[letter]:
-        #         ret += f"{n.name}, "
-        ret += '\n'
-        return ret
+    # def state_debug(self) -> str:
+    #     ret = str(self.name) + '\nTransitions: '
+    #     for adj in self.adjs:
+    #         ret += adj[1] + ' ' + str(adj[0]) + ', '
+    #     # ret += '\nDelta*: '
+    #     # for letter in self.delta_s:
+    #     #     ret += f"Letter: {letter}: "
+    #     #     for n in self.delta_s[letter]:
+    #     #         ret += f"{n.name}, "
+    #     ret += '\n'
+    #     return ret
 
 
 def powerset(iterable):
+    """
+    Returns all subsets of iterable object
+    :param iterable: input set
+    :return: list of all iterable subsets
+    """
     s = list(iterable)
     return list(map(set, chain.from_iterable(combinations(s, r) for r in range(len(s) + 1))))
 
 
-def states_to_list(states):
+def states_to_list(states: list) -> list:
+    """
+    Converts a list of State to list of str (using states' name)
+    :param states: list of State
+    :return: list of str
+    """
     states_list = []
     for state in states:
         states_list.append(str(state))
     return states_list
 
 
-def convert_to_dfa(nfa):
+def convert_to_dfa(nfa: list) -> list:
+    """
+    Converts and NFA to DFA
+    :param nfa: NFA
+    :return: converted DFA
+    """
     dfa = []
     states_list = states_to_list(nfa)
     for dfa_state in powerset(states_list):
@@ -83,18 +111,21 @@ def convert_to_dfa(nfa):
     for dfa_state in dfa:
         states = [st for st in nfa if st.name in dfa_state.name]
         for letter in alphabet:
-            transition = (set(), letter)
+            dst = set()
             for sub_state in states:
-                transition[0].update(sub_state.delta_s[letter])
-            dfa_state.add_adj(*transition)
-
-    for dfa_state in dfa:
-        print(dfa_state.state_debug())
+                dst.update(sub_state.delta_s[letter])
+            dst = [st for st in dfa if st.name == dst][0]
+            dfa_state.add_adj(dst, letter)
 
     return dfa
 
 
 def iterable_to_line(iterable):
+    """
+    A utility function for outputting dfa - converts an iterable object (e.g. list) to one line string
+    :param iterable:
+    :return: returns one line string
+    """
     ret = ''
     for i in iterable:
         ret += str(i) + ' '
@@ -102,7 +133,11 @@ def iterable_to_line(iterable):
     return ret
 
 
-def write_to_file(dfa):
+def write_to_file(dfa: list) -> None:
+    """
+    Writes dfa to 'DFA_Output_2.txt' file
+    :param dfa: DFA to be written to file
+    """
     with open('DFA_Output_2.txt', 'w') as f:
         f.write(iterable_to_line(alphabet))
         f.write(iterable_to_line(dfa))
@@ -111,6 +146,7 @@ def write_to_file(dfa):
 
         for st in dfa:
             for adj in st.adjs:
+                print(type(adj[0]))
                 f.write(str(st) + ' ' + adj[1] + ' ' + str(adj[0]) + '\n')
 
 
